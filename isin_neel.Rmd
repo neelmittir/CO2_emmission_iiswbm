@@ -1,0 +1,661 @@
+---
+title: "SuvojyotiMitra_IISWBM_Project_CO2Data"
+author: "Suvojyoti Mitra-IISWBM-isin151606"
+date: "November 21, 2016"
+output: html_document
+---
+
+```{r}
+setwd("F:/Project_2/Report")
+data <- read.csv("F:/PROJECT/Arranged---CO2_passenger_cars_v9-001.csv")
+summary.matrix(data)
+## Levels##
+levels(data$MS)
+levels(data$MP)
+levels(data$Mh)
+levels(data$MAN)
+ncol(data)
+nrow(data)
+levels(data$MMS)
+#685
+levels(data$TAN)
+#3148
+levels(data$Va)
+levels(data$Ve)
+levels(data$Mk)
+#267
+levels(data$Cn)
+levels(data$Ct)
+#3 & others are blank
+levels(data$Ft)
+#23 & blank
+levels(data$Fm)
+#4 & Blank
+levels(data$IT)
+#Most of them are blank- 8cars have details
+
+```
+## This Shows this data has 26 variables and 417939 Observations.
+## 15 Catagorical variable & 11 Numerical variables.
+
+```{r}
+## Missing Values##
+mis_detect <- function(x)
+{
+  mat <- matrix(NA,ncol(x),1)
+  for(i in 1:ncol(x))
+  {
+    mat[i,1] <- sum(is.na(x[,i]))/nrow(x)*100
+  }
+  rownames(mat) <- names(x)
+  colnames(mat) <- "%missing"
+  return(round(mat,3))
+}
+mis_detect(data)
+
+```
+
+
+```{r}
+## Summary##
+##1##
+summart_var <- function(x) 
+  {
+  funs <- c(mean, median, sd, mad, IQR, hist)
+  lapply(funs, function(f) f(x, na.rm = T))
+  }
+summart_var(data)
+
+##2##
+## Descriptive Statistics
+f <- function(x)
+{
+  {
+    avg1=0
+    for(i in x)
+    {
+      avg1=avg1+(i/length(x))
+    }
+    print("Average/Mean")
+    print(avg1)
+  }
+  { 
+  max=0
+  for(i in x)
+  {
+    if(max < i)
+      max = i
+    else
+      max = max
+  }
+  print("Max")
+  print(max)
+  }
+  { 
+  min <- max(x)
+  for(i in x)
+  {
+    if(min >= i)
+      min = i
+    else
+      min = min
+  }
+  print("min")
+  print(min)
+  }
+  {
+  std1 <- 0
+  for(i in x)
+  {
+   std1 = std1 + ((i - avg1)^2) 
+  }
+  std = (sqrt(std1/(length(x)-1)))
+  print("SD")
+  print(std)
+  }
+  {
+  print("N")
+  print(length(x))
+  }
+  {y <- sort(x)
+  ifelse(length(y)%%2 != 0, print(y[(length(y)+1)/2]) , print((y[(length(y)/2)]+(y[(length(y)/2)+1]))/2))
+  print("the above value is Median/Q2")
+  }
+  {
+  y <- sort(x)
+  ifelse(length(y)%%2 != 0, print(y[(length(y)+1)/4]) , print((y[(length(y)/4)]+(y[(length(y)/4)+1]))/2))
+  print("the above value is Q1")
+  }
+  {
+  y <- sort(x)
+  ifelse(length(y)%%2 != 0, print(y[3*(length(y)+1)/4]) , print((y[3*(length(y)/4)]+(y[3*(length(y)/4)+1]))/2))
+  print("the above value is Q3")
+  }
+  {
+  hist(x)
+  boxplot(x)
+  }
+  {
+  plot(x)
+  }
+  {
+  {
+    mode <- table(as.vector(x))
+    names(mode)[mode == max(mode)]
+    print("Mode")
+    print(mode)
+  }
+  
+  }
+}
+
+
+
+##3##
+##Histogram##
+hst_all <- function(vec)
+{
+  
+  for(i in vec)
+  {
+    hist(vec[i])
+  }
+}
+hst_all(co2[,c("e..g.km.","w..mm.")])
+
+
+```
+
+## Data Cleaning##
+# Converting the entire dataset to lower#
+```{r}
+low <- function(y)
+{
+  for(i in 1:ncol(y))
+    {
+    #if(class(y[,i])=="factor")
+    {
+    y[,i] <- tolower(y[,i])
+    }
+  }
+  return(y)
+}
+data1 <- low(data)
+head(data1)
+str(data1)
+
+```
+## Cleaning Mk.
+## For that we have created a .csv file with the objects in the variable Mk named GoogleDrive-Sheet1.csv
+```{r}
+cln.mk <- read.csv("GoogleDrive-Sheet1.csv", header = T)
+cln.mk <- edit(cln.mk)
+cln.mk$Var1
+## replacing 0  with o:
+rep0 <- function(data)
+{
+  for(i in 1:ncol(data))
+  {
+    a <- grep("^0",data)
+    for(i in a[i])
+    {
+      a <- gsub("^0","^o",a[i],ignore.case = F)
+    }
+  }
+ return(a)
+}
+rep0(cln.mk)
+## This function is working for the entire data set 
+## not required
+
+grep("^0",cln.mk$Var1)
+
+```
+## imputing odd letters
+```{r}
+co2 <- read.csv("GoogleDrive-Sheet1.csv", header = T)
+# cleaning 
+#Step1 - Replace all strings with only numbers as NA. They will be treated as missing values later
+co2$Mk[co2$Mk == 270] <- NA
+co2$Mk[co2$Mk == 0] <- NA
+co2$Mk[co2$Mk == "706/2007"] <- NA
+
+### Step2 - Remove unnecessary (non-alpha numeric) symbols 
+code <- read.csv()
+code <- unique(code)
+x <- "î-î¥undai"
+str_replace_all(x, "[^[:alnum:]]", "")
+trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+y <- "  msjn h"
+trim(y)
+str_trim(y)
+library(stringr)
+co2$Mk <- str_replace_all(co2$Mk, "[^[:alnum:]]", " ")
+head(co2$Mk)
+
+```
+## median imputation
+```{r}
+work <- read.csv("F:/PROJECT/Working_data_CO2_00.csv")
+summary(work)
+
+work_1 <- na.omit(work[-c(1,2,3,4,5,11,12,15,6)])
+
+median(work_1$m)
+median <- numeric(6)
+for(i in 1:6){median[i] = median(work_1[,i] , na.rm = T)}
+median
+wd1 <- read.csv("Working_data_CO2_00.csv")
+wd1$m[wd1$m == "NA"] <- 1503
+#wd1$m[wd1$m == NaN] = 1503
+wd1$m[wd1$m == 0] <- 1503
+```
+### Now it has 212 levels.
+### Step5 - Create a vector of codes 
+```{r}
+code <- read.csv("co2.cars.csv", header = FALSE)
+head(code)
+code <- code[,1]
+code <- unique(code) #Remove repetition
+length(code)
+head(code)
+class(code)
+code <- code[!is.na(code)]
+```
+
+### Step6 - Calculate the distance matrix
+```{r}
+D <- adist(co2$Mk, code)
+colnames(D) <- code
+rownames(D) <- co2$Mk
+D[1:5,1:10]
+```
+
+### Step7 - For each of the rows of the matrix return the minimun distance
+```{r}
+i <- apply(X=D, MARGIN = 1, FUN = which.min)
+class(i)
+i <- as.integer(i)
+```
+
+### To compare the actual and coded
+```{r}
+dat <- data.frame(rawtext = co2$Mk, coded = code[i])
+dat[1:100,]
+```
+
+### Step8 - replace the original variable y the coded vector
+```{r}
+co2$Mk <- code[i]
+co2$Mk <- as.factor(co2$Mk)
+length(levels(co2$Mk))
+```
+
+# DATA CLEANING:
+## Variable Name: MS 
+## Variable type: Categorical
+```{r}
+summary(co2$MS)
+co2$MS <- tolower(co2$MS)
+co2$MS[445:455]
+class(co2$MS)
+co2$MS <- as.factor(co2$MS)
+length(levels(co2$MS))
+```
+
+# DATA CLEANING:
+## Variable Name: Ft 
+## Variable type: Categorical
+## Removing all alphanumeric and symbols & converting them to lowercase and making the levels unique
+```{r}
+summary(co2$Ft)
+library(stringr)
+co2$Ft[co2$Ft == ""] <- NA
+co2$Ft <- str_replace_all(co2$Ft, "[^[:alnum:]]", " ")
+head(co2$Ft)
+co2$Ft <- tolower(co2$Ft)
+co2$Ft[1:20]
+class(co2$Ft)
+co2$Ft <- as.factor(co2$Ft)
+length(levels(co2$Ft))
+levels(co2$Ft)
+co2$Ft[25:45]
+```
+## Converting the lower_case values of MS to Upper_case.
+```{r}
+work$MS <- toupper(work$MS)
+unique(work$MS)
+```
+
+```{r}
+setwd("F:/Project_2/Report")
+work_1 <- (work[c(7:11,14,15,12,1,4,13)])
+write.csv(work_1, "work_1-na_1.csv")
+work_1 = read.csv("work_1-na_1.csv")
+hist(work_1$m, main = "m with normal curve")
+xfit<-seq(min(work_1$m),max(work_1$m)) 
+yfit<-dnorm(xfit,mean=mean(work_1$m),sd=sd(work_1$m)) 
+yfit <- yfit*diff(work_1$m[1:2])*length(work_1$m) 
+lines(xfit, yfit, col="blue", lwd=2)
+
+hist(work_1$w, main = "w with normal curve")
+xfit<-seq(min(work_1$w),max(work_1$w)) 
+yfit<-dnorm(xfit,mean=mean(work_1$w),sd=sd(work_1$w)) 
+yfit <- yfit*diff(work_1$w[1:2])*length(work_1$w) 
+lines(xfit, yfit, col="blue", lwd=2)
+
+
+hist(work_1$at1, main = "at1 with normal curve")
+xfit<-seq(min(work_1$at1),max(work_1$at1)) 
+yfit<-dnorm(xfit,mean=mean(work_1$at1),sd=sd(work_1$at1)) 
+yfit <- yfit*diff(work_1$at1[1:2])*length(work_1$at1) 
+lines(xfit, yfit, col="blue", lwd=2)
+
+hist(work_1$at2, main = "at2 curve")
+xfit<-seq(min(work_1$at2),max(work_1$at2)) 
+yfit<-dnorm(xfit,mean=mean(work_1$at2),sd=sd(work_1$at2)) 
+yfit <- yfit*diff(work_1$at2[1:2])*length(work_1$at2) 
+lines(xfit, yfit, col="blue", lwd=2)
+
+hist(work_1$ep, main = "ep curve")
+xfit<-seq(min(work_1$ep),max(work_1$ep)) 
+yfit<-dnorm(xfit,mean=mean(work_1$ep),sd=sd(work_1$ep)) 
+yfit <- yfit*diff(work_1$ep[1:2])*length(work_1$ep) 
+lines(xfit, yfit, col="blue", lwd=2)
+
+hist(work_1$ec, main = "ec curve")
+xfit<-seq(min(work_1$ec),max(work_1$ec)) 
+yfit<-dnorm(xfit,mean=mean(work_1$ec),sd=sd(work_1$ec)) 
+yfit <- yfit*diff(work_1$ec[1:2])*length(work_1$ec) 
+lines(xfit, yfit, col="blue", lwd=2)
+
+
+round(cor(na.omit(work_1[1:7]), method = "pearson"),3)
+plot(work_1$m,work_1$w)
+plot(work_1$w,work_1$at2)
+plot(work_1$m,work_1$at1)
+library(corrgram)
+corrgram(work_1, order=NULL, lower.panel=panel.pie,
+  upper.panel=NULL, text.panel=panel.txt,
+  main="correlation between continious variables(without missing values)")
+
+
+```
+##Model:
+```{r}
+k1 = na.omit(work_1)
+write.csv(k1, "k1.csv")
+k = k1[1:7]
+#k = na.omit(work_1[1:7])
+
+
+dat1 = scale(k)
+norm = ((dat1 - mean(dat1)/ sd(dat1)))
+norm
+
+write.csv(norm, "normal.csv")
+
+
+## PCA##
+wk = read.csv("normal.csv")
+wk1 = round(wk[2:8],2)
+wk3 <- wk1[2:7] 
+fit <- princomp(wk3,scores = TRUE, cor=TRUE)
+work_5 <- round(fit$scores, 2)
+write.csv(work_5,"Work_5_1.csv")
+summary(fit) # Which one to take 
+loadings(fit) # pc loadings 
+plot(fit$scores[,1])
+pairs(fit$scores)
+title(main="Principal Component Analysis_fit.scores")
+plot(fit,type="lines") # scree plot 
+
+# the principal components
+scatter.smooth(fit$scores)
+biplot(fit)
+write.csv(work_5[,3:4], "Factor_scores.csv")
+#par(mfrow = c(2,1))
+
+#### Communalities
+com1 <- (loadings(fit)[2,1]^2 + loadings(fit)[2,2]^2 + loadings(fit)[2,3]^2)
+com2 <- (loadings(fit)[2,1]^2 + loadings(fit)[2,2]^2)
+com3 <- (loadings(fit)[2,1]^2 + loadings(fit)[2,2]^2 + loadings(fit)[2,3]^2 + loadings(fit)[2,4]^2)
+com4 <- (loadings(fit)[2,6]^2 + loadings(fit)[2,7]^2)
+com5 <- (loadings(fit)[2,7]^2 + loadings(fit)[2,5]^2 + loadings(fit)[2,6]^2 + loadings(fit)[2,5]^2 + loadings(fit)[2,4]^2)  #loadings(fit)[2,2]^2)
+com1; com2; com3
+com4; com5
+com5
+
+## Bartlett's test for sphericity ##
+library("psych")
+corrmat <- cor(wk1, method = "pearson")
+cortest.bartlett(corrmat, n = dim(wk1)[1])
+
+## Varimax ##
+fit_vmx <- principal(wk1, nfactors=5, rotate="varimax")
+fit_vmx
+
+# Maximum Likelihood Factor Analysis
+# with varimax rotation 
+fit_fact1 <- factanal(wk3, 3, rotation="varimax", scores="regression")
+print(fit_fact1, digits=2, cutoff=.3, sort=TRUE)
+
+data_fact <- cbind(round(wk$e,2), round(fit_fact1$scores,2))
+write.csv(data_fact, "fact.csv")
+
+## Working with factor data##
+f1 <- read.csv("fact_1.csv")
+
+
+## Correlation matrix##
+library("psych")
+corrmat <- cor(f1, method = "pearson")
+corrmat
+cortest.bartlett(corrmat, n = dim(f1)[1])
+
+
+```
+## Data Split##
+```{r}
+# splitdf function will return a list of training and testing sets
+splitdf <- function(dataframe, seed=NULL) {
+	if (!is.null(seed)) set.seed(seed)
+	index <- 1:nrow(dataframe)
+	trainindex <- sample(index, trunc(length(index)/2))
+	trainset <- dataframe[trainindex, ]
+	testset <- dataframe[-trainindex, ]
+	list(trainset=trainset,testset=testset)
+}
+sp_f1 <- splitdf(f1, seed = 800)
+str(sp_f1)
+lapply(sp_f1,nrow)
+lapply(sp_f1,head)
+train_f1 <- sp_f1$trainset
+test_f1 <- sp_f1$testset
+# make predictions
+x_test <- test_f1[,2:4]
+y_test <- test_f1[,1]
+
+```
+
+
+## Multiple regression ##
+```{r}
+# Multiple Linear Regression with out splitting the data as per Ft## 
+fit_reg <- lm(e ~ ., data=f1)
+summary(fit_reg) # show results
+coefficients(fit_reg) # model coefficients
+confint(fit_reg, level=0.95) # CIs for model parameters 
+fitted(fit_reg) # predicted values
+residuals(fit_reg) # residuals
+anova(fit_reg) # anova table 
+vcov(fit_reg) # covariance matrix for model parameters 
+influence(fit_reg) # regression diagnostics
+
+p <- predict(fit_reg, f1[,2:4])
+p[1:10]
+# summarize results
+#Root mean square error##
+rmse1 <- mean((f1$e - p)^2)
+print(rmse1)
+library(caret)
+library(klaR)
+confusionMatrix(p,y_test)
+
+# K-fold cross-validation
+library(DAAG)
+cv.lm(f1, fit_reg, m=5)
+
+# Multiple Linear Regression with splitting the data as per Ft##
+k2 <- read.csv("k1.csv")
+Obs_pps <- cbind(k2$Ft, k2$Mk, k2$MS, f1)
+write.csv(Obs_pps, "Obs_infrence.csv")
+reg_spt <- cbind(k2$Ft, f1)
+write.csv(reg_spt, "reg_data.csv")
+rg <- read.csv("reg_data_1.csv")
+df = data.frame(rg)
+
+install.packages("cv.glm")
+library(sqldf)
+install.packages("tcltk")
+petrol <- sqldf("SELECT * FROM rg WHERE Ft = 'petrol'")
+## Model for Petrol ##
+fit_petrol <- lm(e ~ car_at + car_engine + car_body, data=petrol)
+summary(fit_petrol)
+
+p1 <- predict(fit_petrol, petrol[,3:5])
+p1[1:10]
+# summarize results
+#Root mean square error##
+rmse_petrol <- mean((petrol$e - p1)^2)
+print(rmse_petrol)
+
+#cv.lm(petrol, fit_petrol, m=3)
+
+
+diesel <- sqldf("SELECT * FROM rg WHERE Ft = 'diesel'")
+fit_diesel <- lm(e ~ car_at + car_engine + car_body, data=diesel)
+summary(fit_diesel)
+
+p2 <- predict(fit_diesel, diesel[,3:5])
+p2[1:10]
+# summarize results
+#Root mean square error##
+rmse_diesel <- mean((diesel$e - p2)^2)
+print(rmse_diesel)
+
+levels(k2$Ft)
+
+biodiesel <- sqldf("SELECT * FROM rg WHERE Ft = 'biodiesel'")
+fit_biodiesel <- lm(e ~ car_at + car_engine + car_body, data=biodiesel)
+summary(fit_biodiesel)
+
+p3 <- predict(fit_biodiesel, biodiesel[,3:5])
+p3[1:10]
+# summarize results
+#Root mean square error##
+rmse_biodiesel <- mean((biodiesel$e - p3)^2)
+print(rmse_biodiesel)
+
+
+e85 <- sqldf("SELECT * FROM rg WHERE Ft = 'e85'")
+fit_e85 <- lm(e ~ car_at + car_engine + car_body, data=e85)
+summary(fit_e85)
+
+p4 <- predict(fit_e85, e85[,3:5])
+p4[1:10]
+# summarize results
+#Root mean square error##
+rmse_e85 <- mean((e85$e - p4)^2)
+print(rmse_e85)
+
+
+hydrogen <- sqldf("SELECT * FROM rg WHERE Ft = 'hydrogen'")
+fit_hydrogen <- lm(e ~ car_at + car_engine + car_body, data=hydrogen)
+summary(fit_hydrogen)
+
+p5 <- predict(fit_hydrogen, hydrogen[,3:5])
+p5[1:10]
+# summarize results
+#Root mean square error##
+rmse_hydrogen <- mean((hydrogen$e - p5)^2)
+print(rmse_hydrogen)
+
+lpg <- sqldf("SELECT * FROM rg WHERE Ft = 'lpg'")
+fit_lpg <- lm(e ~ car_at + car_engine + car_body, data=lpg)
+summary(fit_lpg)
+
+p5 <- predict(fit_lpg, lpg[,3:5])
+p5[1:10]
+# summarize results
+#Root mean square error##
+rmse_lpg <- mean((lpg$e - p5)^2)
+print(rmse_lpg)
+
+ng_biomethane <- sqldf("SELECT * FROM rg WHERE Ft = 'ng biomethane'")
+fit_ng_biomethane <- lm(e ~ car_at + car_engine + car_body, data=ng_biomethane)
+summary(fit_ng_biomethane)
+
+p6 <- predict(fit_ng_biomethane, ng_biomethane[,3:5])
+p6[1:10]
+# summarize results
+#Root mean square error##
+rmse_ng_biomethane <- mean((ng_biomethane$e - p6)^2)
+print(rmse_ng_biomethane)
+
+petrolgas <- sqldf("SELECT * FROM rg WHERE Ft = 'petrol gas'")
+fit_petrolgas <- lm(e ~ car_at + car_engine + car_body, data=petrolgas)
+summary(fit_petrolgas)
+
+p7 <- predict(fit_petrolgas, petrolgas[,3:5])
+p7[1:10]
+# summarize results
+#Root mean square error##
+rmse_petrolgas <- mean((petrolgas$e - p7)^2)
+print(rmse_petrolgas)
+
+
+#sum1 <- cv.lm(diesel, fit_diesel, m=3)
+#summary(sum1)
+
+
+
+
+
+
+
+# diagnostic plots 
+layout(matrix(c(1,2,3,4),2,2)) # optional 4 graphs/page 
+plot(fit)
+
+# compare models
+fit1 <- lm(y ~ x1 + x2 + x3 + x4, data=mydata)
+fit2 <- lm(y ~ x1 + x2)
+anova(fit1, fit2)
+
+# K-fold cross-validation
+library(DAAG)
+#cv.lm( df=mydata, fit, m=3) # 3 fold cross-validation
+
+# Assessing R2 shrinkage using 10-Fold Cross-Validation 
+
+fit <- lm(y~x1+x2+x3,data=mydata) 
+
+library(bootstrap)
+# define functions 
+theta.fit <- function(x,y){lsfit(x,y)}
+theta.predict <- function(fit,x){cbind(1,x)%*%fit$coef} 
+
+# matrix of predictors
+X <- as.matrix(mydata[c("x1","x2","x3")])
+# vector of predicted values
+y <- as.matrix(mydata[c("y")]) 
+
+results <- crossval(X,y,theta.fit,theta.predict,ngroup=10)
+cor(y, fit$fitted.values)**2 # raw R2 
+cor(y,results$cv.fit)**2 # cross-validated R2
+
+
+
+
+```
